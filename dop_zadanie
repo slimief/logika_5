@@ -1,0 +1,146 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <iostream>
+#include <string.h>
+#include <locale.h>
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <locale.h>
+
+int** dinamic(int size) {
+    int** matrix = (int**)malloc(size * sizeof(int*));
+    for (int i = 0; i < size; i++) {
+        matrix[i] = (int*)malloc(size * sizeof(int));
+    }
+    return matrix;
+}
+
+void freeMatrix(int** matrix, int size) {
+    for (int i = 0; i < size; i++) {
+        free(matrix[i]);
+    }
+    free(matrix);
+}
+
+int getGraphSizeFromIncidenceMatrix(int** incidenceMatrix, int edgeCount, int vertexCount) {
+    return vertexCount;  // Размер графа возвращается в качестве количества вершин
+}
+
+void createIncidenceMatrix(int** matrix, int vertexCount) {
+    int edgeCount = 0;
+    for (int i = 0; i < vertexCount; i++) {
+        for (int j = i + 1; j < vertexCount; j++) {
+            if (matrix[i][j] == 1) {
+                edgeCount++;
+            }
+        }
+    }
+
+    int** incidenceMatrix = (int**)malloc(vertexCount * sizeof(int*));
+    for (int i = 0; i < vertexCount; i++) {
+        incidenceMatrix[i] = (int*)malloc(edgeCount * sizeof(int));
+    }
+
+    for (int i = 0; i < vertexCount; i++) {
+        for (int j = 0; j < edgeCount; j++) {
+            incidenceMatrix[i][j] = 0;
+        }
+    }
+
+    int edgeIndex = 0;
+    for (int i = 0; i < vertexCount; i++) {
+        for (int j = i + 1; j < vertexCount; j++) {
+            if (matrix[i][j] == 1) {
+                incidenceMatrix[i][edgeIndex] = 1;
+                incidenceMatrix[j][edgeIndex] = 1;
+                edgeIndex++;
+            }
+        }
+    }
+
+    int calculatedSize = getGraphSizeFromIncidenceMatrix(incidenceMatrix, edgeCount, vertexCount);
+    printf("Размер графа, определённый из матрицы инцидентности: %d\n", calculatedSize);
+
+    for (int i = 0; i < vertexCount; i++) {
+        int edgeCountForVertex = 0;
+        for (int j = 0; j < edgeCount; j++) {
+            edgeCountForVertex += incidenceMatrix[i][j];
+        }
+        if (edgeCountForVertex == 0) {
+            printf("Вершина %d: Изолированная\n", i);
+        }
+        else if (edgeCountForVertex == 1) {
+            printf("Вершина %d: Концевая\n", i);
+        }
+        else {
+            printf("Вершина %d: Доминирующая\n", i);
+        }
+    }
+
+    printf("Матрица инцидентности:\n");
+    for (int i = 0; i < vertexCount; i++) {
+        for (int j = 0; j < edgeCount; j++) {
+            printf("%d ", incidenceMatrix[i][j]);
+        }
+        printf("\n");
+    }
+
+    freeMatrix(incidenceMatrix, vertexCount);
+}
+
+int main() {
+    setlocale(LC_ALL, "Russian");
+    srand(time(NULL));
+
+    int G;
+    printf("Введите количество вершин графа: ");
+    scanf("%d", &G);
+
+    // Динамическое выделение памяти для матрицы смежности
+    int** M = dinamic(G);
+
+    // Инициализация матрицы смежности
+    for (int i = 0; i < G; i++) {
+        for (int j = 0; j < G; j++) {
+            if (i == j) {
+                M[i][j] = 0;
+            }
+            else {
+                M[i][j] = 0; // Или можно не инициализировать, если будете сразу задавать rand()
+            }
+        }
+    }
+
+    int* degrees = (int*)malloc(G * sizeof(int));
+    memset(degrees, 0, G * sizeof(int)); // Инициализация массива степеней нулями
+
+    for (int i = 0; i < G; i++) {
+        for (int j = i + 1; j < G; j++) {
+            M[i][j] = M[j][i] = rand() % 2; // Генерация ребра
+
+            if (M[i][j] == 1) {
+                degrees[i]++;
+                degrees[j]++;
+            }
+        }
+    }
+
+    printf("Матрица смежности:\n");
+    for (int i = 0; i < G; i++) {
+        for (int j = 0; j < G; j++) {
+            printf("%d ", M[i][j]);
+        }
+        printf(" Степень: %d", degrees[i]); // Печать степени каждой вершины
+        printf("\n");
+    }
+
+    createIncidenceMatrix(M, G);
+    freeMatrix(M, G);
+    free(degrees); // Освобождение памяти от массива степеней
+
+    return 0;
+}
