@@ -1,0 +1,104 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <iostream>
+#include <string.h>
+#include <locale.h>
+
+const int G = 5;  // Размер графа
+int M[G][G];      // Матрица смежности
+// Функция для определения размера графа
+int getGraphSize(int matrix[][G]) {
+    int size = 0;
+    while (size < G && matrix[size][size] == 0) {
+        size++;
+    }
+    return size;
+}
+// Функция для нахождения изолированных вершин
+void findIsolatedVertices(int matrix[][G]) {
+    printf("Изолированные вершины: ");
+    for (int i = 0; i < G; i++) {
+        int isIsolated = 1;  // Предполагаем, что вершина изолирована
+        for (int j = 0; j < G; j++) {
+            if (matrix[i][j] == 1) {
+                isIsolated = 0;  // Вершина не изолирована
+                break;
+            }
+        }
+        if (isIsolated) {
+            printf("%d ", i);
+        }
+    }
+    printf("\n");
+}
+// Функция для нахождения концевых вершин
+void findEndVertices(int matrix[][G]) {
+    printf("Концевые вершины: ");
+    for (int i = 0; i < G; i++) {
+        int degree = 0;
+        for (int j = 0; j < G; j++) {
+            degree += matrix[i][j];  // Считаем степень вершины
+        }
+        if (degree == 1) {
+            printf("%d ", i);  // Вершина с одной связью является концевой
+        }
+    }
+    printf("\n");
+}
+
+// Функция для нахождения доминирующих вершин
+void findDominatingVertices(int matrix[][G]) {
+    printf("Доминирующие вершины: ");
+    for (int i = 0; i < G; i++) {
+        int isDominating = 1;  // Предполагаем, что вершина доминирующая
+        for (int j = 0; j < G; j++) {
+            if (j != i && matrix[i][j] == 0) {
+                isDominating = 0;  // Если есть вершина, не связанная с i, то она не доминирующая
+                break;
+            }
+        }
+        if (isDominating) {
+            printf("%d ", i);
+        }
+    }
+    printf("\n");
+}
+int main() {
+    setlocale(LC_ALL, "Russian");
+    srand(time(NULL));
+    // Инициализация матрицы смежности
+    for (int i = 0; i < G; i++) {
+        for (int j = 0; j < G; j++) {
+            if (i == j) {
+                M[i][j] = 0;  // Нет петли
+            }
+            else {
+                M[i][j] = 0;  // Изначально нет рёбер
+            }
+        }
+    }
+    // Генерация случайных рёбер для неориентированного графа
+    for (int i = 0; i < G; i++) {
+        for (int j = i + 1; j < G; j++) {
+            M[i][j] = M[j][i] = rand() % 2;  // Случайное ребро между i и j
+        }
+    }
+    // Вывод матрицы смежности на экран
+    printf("Матрица смежности:\n");
+    for (int i = 0; i < G; i++) {
+        for (int j = 0; j < G; j++) {
+            printf("%d ", M[i][j]);
+        }
+        printf("\n");
+    }
+    // Определение размера графа
+    int size = getGraphSize(M);
+    printf("Размер графа: %d\n", size);
+    // Поиск и вывод изолированных, концевых и доминирующих вершин
+    findIsolatedVertices(M);
+    findEndVertices(M);
+    findDominatingVertices(M);
+    return 0;
+}
